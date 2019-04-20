@@ -1,0 +1,14 @@
+@font-face {
+  font-family: Sommet;
+  src: url("./fonts/Sommet.otf") format("opentype");
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body,
+#root {
+  height: 100%;
+}

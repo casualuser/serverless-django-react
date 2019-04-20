@@ -1,0 +1,37 @@
+service: ${env:PROJECT}
+
+plugins:
+  - serverless-python-requirements
+  - serverless-wsgi
+
+custom:
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'ap-southeast-2'}
+  wsgi:
+    app: app.wsgi.application
+
+provider:
+  name: aws
+  runtime: python3.6
+  region: ${self:custom.region}
+
+functions:
+  app:
+    handler: wsgi_handler.handler
+    events:
+      - http: ANY /
+      - http: "ANY {proxy+}"
+    environment:
+      AZURE_APP_ID: ${ssm:/${self:custom.stage}/${self:service}/AZURE_APP_ID}
+      AZURE_ADMIN_GROUP_ID: ${ssm:/${self:custom.stage}/${self:service}/AZURE_ADMIN_GROUP_ID}
+      SECRET_KEY: ${ssm:/${self:custom.stage}/${self:service}/SECRET_KEY~true}
+      ALLOWED_HOSTS: ${ssm:/${self:custom.stage}/${self:service}/ALLOWED_HOSTS, ''}
+      CORS_WHITELIST: ${ssm:/${self:custom.stage}/${self:service}/CORS_WHITELIST, ''}
+      DB_HOST: ${ssm:/${self:custom.stage}/${self:service}/DB_HOST}
+      DB_PORT: ${ssm:/${self:custom.stage}/${self:service}/DB_PORT}
+      DB_NAME: ${ssm:/${self:custom.stage}/${self:service}/DB_NAME}
+      DB_USER: ${ssm:/${self:custom.stage}/${self:service}/DB_USER}
+      DB_PASSWORD: ${ssm:/${self:custom.stage}/${self:service}/DB_PASSWORD~true}
+      TEAMS_WEBHOOK: ${ssm:/${self:custom.stage}/${self:service}/TEAMS_WEBHOOK, ''}
+      CLOUDWATCH_LOG_GROUP: ${ssm:/${self:custom.stage}/${self:service}/CLOUDWATCH_LOG_GROUP, ''}
+      CLOUDWATCH_LOG_STREAM: ${ssm:/${self:custom.stage}/${self:service}/CLOUDWATCH_LOG_STREAM, ''}
