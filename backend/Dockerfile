@@ -1,16 +1,12 @@
-FROM alpine:3.9.3
-ENV PYTHONUNBUFFERED 1
+FROM lambci/lambda:build-python3.6
 
-RUN apk add --no-cache nodejs nodejs-npm
-
+RUN curl --silent --location https://rpm.nodesource.com/setup_11.x | bash -
+RUN yum -y install nodejs
 RUN npm install -g serverless
-
 COPY package.json package-lock.json ./
 RUN npm install
 
-RUN apk add --no-cache build-base python3 python3-dev libffi-dev libressl-dev linux-headers mariadb-connector-c-dev
-
-COPY requirements.txt /
+COPY requirements.txt ./
 RUN pip3 install -r requirements.txt
 
 ADD ./ /backend
