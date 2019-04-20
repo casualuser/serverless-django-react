@@ -5,7 +5,6 @@ services:
     build: ./backend
     environment:
       - DJANGO_DEBUG=true
-      - PROJECT=EIA003
     ports:
       - "5000:5000"
     volumes:
