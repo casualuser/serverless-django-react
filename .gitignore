@@ -36,3 +36,7 @@ node_modules/
 
 # Serverless
 .serverless/
+
+# Terraform
+pipeline/.terraform/
+pipeline/variables.tf

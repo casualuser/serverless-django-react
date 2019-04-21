@@ -1,4 +1,4 @@
-service: EIA003
+service: ${env:PROJECT_NAME}
 
 plugins:
   - serverless-python-requirements
@@ -9,14 +9,13 @@ custom:
   region: ${opt:region, 'ap-southeast-2'}
   wsgi:
     app: app.wsgi.application
-  pythonRequirements:
-    dockerizePip: true
-    dockerFile: ./Dockerfile
 
 provider:
   name: aws
   runtime: python3.6
   region: ${self:custom.region}
+  deploymentBucket:
+    name: ${env:PROJECT_BUCKET, ''}
 
 functions:
   app:

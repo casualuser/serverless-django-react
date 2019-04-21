@@ -1,0 +1,14 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - npm install -g serverless
+  build:
+    commands:
+      - (cd frontend; npm install; npm run build)
+      - (cd backend; npm install; sls deploy --verbose --stage $STAGE)
+  post_build:
+    commands:
+      - aws s3 sync frontend/build s3://$PROJECT_BUCKET/$STAGE/ --delete
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRO --paths '/*'
