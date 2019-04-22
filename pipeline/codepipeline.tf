@@ -28,10 +28,10 @@ resource "aws_codepipeline" "project_codepipeline" {
   }
 
   stage {
-    name = "Build"
+    name = "Stage"
 
     action {
-      name = "BuildStage"
+      name = "BuildDeploy"
       category = "Build"
       owner = "AWS"
       provider = "CodeBuild"
@@ -40,6 +40,33 @@ resource "aws_codepipeline" "project_codepipeline" {
 
       configuration {
         ProjectName = "${var.name}-stage-codebuild"
+      }
+    }
+  }
+
+  stage {
+    name = "Prod"
+
+    action {
+      name = "ApprovalStage"
+      category = "Approval"
+      owner = "AWS"
+      provider = "Manual"
+      run_order = 1
+      version = "1"
+    }
+
+    action {
+      name = "BuildDeploy"
+      category = "Build"
+      owner = "AWS"
+      provider = "CodeBuild"
+      run_order = 2
+      version = "1"
+      input_artifacts = ["source"]
+
+      configuration {
+        ProjectName = "${var.name}-prod-codebuild"
       }
     }
   }

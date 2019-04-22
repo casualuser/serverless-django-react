@@ -3,12 +3,18 @@ service: ${env:PROJECT_NAME}
 plugins:
   - serverless-python-requirements
   - serverless-wsgi
+  # - serverless-domain-manager
 
 custom:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'ap-southeast-2'}
   wsgi:
     app: app.wsgi.application
+  # customDomain:
+  #   domainName: ${env:REACT_APP_BACKEND_URL, ''}
+  #   certificateArn: ${env:DOMAIN_CERT_ARN, ''}
+  #   createRoute53Record: 'true'
+  #   endpointType: 'regional'
 
 provider:
   name: aws

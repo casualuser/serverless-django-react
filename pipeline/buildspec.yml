@@ -7,6 +7,7 @@ phases:
   build:
     commands:
       - (cd frontend; npm install; npm run build)
+      # - (cd backend; npm install; sls create_domain --stage $STAGE; sls deploy --verbose --stage $STAGE)
       - (cd backend; npm install; sls deploy --verbose --stage $STAGE)
   post_build:
     commands:

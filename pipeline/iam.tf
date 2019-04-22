@@ -56,7 +56,8 @@ resource "aws_iam_policy" "codebuild_policy" {
       "Effect": "Allow",
       "Action": "codebuild:*",
       "Resource": [
-        "${aws_codebuild_project.stage_codebuild.id}"
+        "${aws_codebuild_project.stage_codebuild.id}",
+        "${aws_codebuild_project.prod_codebuild.id}"
       ]
     },
     {
@@ -86,7 +87,9 @@ resource "aws_iam_policy" "codebuild_policy" {
         "cloudfront:*",
         "iam:*",
         "lambda:*",
-        "apigateway:*"
+        "apigateway:*",
+        "route53:*",
+        "acm:*"
       ],
       "Resource": "*"
     }
