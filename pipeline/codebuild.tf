@@ -41,6 +41,11 @@ resource "aws_codebuild_project" "stage_codebuild" {
     }
 
     environment_variable {
+      "name"  = "DOMAIN"
+      "value" = "${var.stage_domain}"
+    }
+
+    environment_variable {
       "name"  = "PROJECT_BUCKET"
       "value" = "${var.project_bucket}"
     }

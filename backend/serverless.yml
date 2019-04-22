@@ -27,7 +27,6 @@ functions:
   app:
     handler: wsgi_handler.handler
     events:
-      - http: ANY /
       - http: "ANY {proxy+}"
     environment:
       AZURE_APP_ID: ${ssm:/${self:custom.stage}/${self:service}/AZURE_APP_ID}
