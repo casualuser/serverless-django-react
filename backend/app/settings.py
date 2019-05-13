@@ -102,7 +102,8 @@ LOGGING = {
         "standard": {
             "format": "%(levelname)s %(asctime)s (%(name)s) %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
-        }
+    },
+        "json": {"()": "json_log_formatter.JSONFormatter"},
     },
     "handlers": {
         "console": {
@@ -113,7 +114,8 @@ LOGGING = {
         }
     },
     "loggers": {
-        "django": {"level": "INFO", "handlers": ["console"], "propagate": False}
+        "django": {"level": "INFO", "handlers": ["console"], "propagate": False},
+        "msal": {"level": "INFO", "handlers": [], "propagate": False},
     },
 }
 
@@ -129,15 +131,26 @@ if os.environ.get("CLOUDWATCH_LOG_GROUP") and os.environ.get("CLOUDWATCH_LOG_STR
     if os.environ.get("AWS_PROFILE"):
         session["profile_name"] = os.environ.get("AWS_PROFILE")
 
-    LOGGING["handlers"]["watchtower"] = {
+    watchtower = {
         "level": "INFO",
         "class": "watchtower.django.CloudWatchLogHandler",
         "boto3_session": Session(**session),
         "log_group": os.environ.get("CLOUDWATCH_LOG_GROUP"),
-        "stream_name": os.environ.get("CLOUDWATCH_LOG_STREAM"),
+    }
+
+    LOGGING["handlers"]["watchtower"] = {
+        **watchtower,
         "formatter": "standard",
+        "stream_name": os.environ.get("CLOUDWATCH_LOG_STREAM"),
     }
     LOGGING["loggers"]["django"]["handlers"].append("watchtower")
+
+    LOGGING["handlers"]["msal_handler"] = {
+        **watchtower,
+        "formatter": "json",
+        "stream_name": "MSAL",
+    }
+    LOGGING["loggers"]["msal"]["handlers"].append("msal_handler")
 
 if os.environ["CORS_WHITELIST"]:
     CORS_ORIGIN_WHITELIST = os.environ["CORS_WHITELIST"].split(",")

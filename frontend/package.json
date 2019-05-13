@@ -1,16 +1,15 @@
 {
   "name": "frontend",
-  "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "antd": "^3.15.0",
+    "antd": "^3.18.1",
     "axios": "^0.18.0",
-    "login-landing-page": "^1.0.1",
-    "react": "^16.8.4",
-    "react-dom": "^16.8.4",
-    "react-msal-jwt": "^1.0.5",
-    "react-router-dom": "^4.3.1",
-    "react-scripts": "2.1.8"
+    "login-landing-page": "^1.0.7",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-msal-jwt": "^1.1.0",
+    "react-router-dom": "^5.0.0",
+    "react-scripts": "3.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -26,5 +25,9 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "preval.macro": "^3.0.0",
+    "typescript": "^3.4.5"
+  }
 }

@@ -1,0 +1,11 @@
+@import '~antd/dist/antd.css';
+
+@font-face {
+  font-family: Sommet;
+  src: url("./fonts/Sommet.otf") format("opentype");
+}
+
+.landing-page {
+  color: floralwhite;
+  font-family: "Sommet";
+}

@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import { Switch, Route } from "react-router-dom";
-import { Button, Layout, Alert } from "antd";
+import { Button, Layout } from "antd";
 import { authenticatedApplication } from "react-msal-jwt";
 import { LandingPage } from "login-landing-page";
 import axios from "axios";
+import preval from "preval.macro";
 
 import AdminDashboard from "./components/AdminDashboard";
 import UserDashboard from "./components/UserDashboard";
@@ -11,6 +12,8 @@ import Forbidden from "./error/Forbidden";
 import ServerError from "./error/ServerError";
 
 import AppContext from "./AppContext";
+
+import "./App.css";
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND_URL;
 
@@ -103,47 +106,26 @@ export default authenticatedApplication({
           />
         </a>
       }
-      welcomeMessage={
-        <Alert
-          showIcon
-          type="warning"
-          message={
-            <>
-              Please log in using <strong>{`<Your zID>`}@ad.unsw.edu.au</strong>
-            </>
-          }
-        />
-      }
-      errorMessage={
-        <Alert
-          showIcon
-          type="error"
-          message={
-            <>
-              An issue occured while logging you in. Please click the button
-              below to sign out from any other sessions and try again, ensuring
-              that you use <strong>{`<Your zID>`}@ad.unsw.edu.au</strong> when
-              you next log in. If the problem persists, please clear your
-              browser cache and try again.
-            </>
-          }
-        />
-      }
       footerItems={[
         <a href="mailto:contact.pvce@unsw.edu.au">Contact us</a>,
         <a href="https://www.unsw.edu.au/privacy">Privacy Policy</a>,
         <a href="https://www.unsw.edu.au/copyright-disclaimer">
           Copyright &amp; Disclaimer
-        </a>
+        </a>,
+        <span style={{ color: "rgba(117, 117, 117, 0.5)" }}>
+          {`Build date: ${preval`module.exports = new Date().toLocaleString("en-AU", {year: "numeric", month: "2-digit", day: "2-digit"});`}`}
+        </span>
       ]}
     />
   ),
   msalConfig: {
-    clientId: process.env.REACT_APP_AZURE_APP_ID,
-    redirectUri: process.env.REACT_APP_FRONTEND_URL,
-    authority: process.env.REACT_APP_AZURE_AUTHORITY
+    auth: {
+      clientId: process.env.REACT_APP_AZURE_APP_ID,
+      authority: process.env.REACT_APP_AZURE_AUTHORITY,
+      redirectUri: process.env.REACT_APP_FRONTEND_URL
+    }
   },
-  authCallback: async (azureIdToken, azureAccessToken) => {
+  onAuthSuccess: async (azureIdToken, azureAccessToken) => {
     const headers = {
       "Content-Type": "application/json; charset=utf8",
       Authorization: "Token " + azureIdToken
@@ -166,6 +148,48 @@ export default authenticatedApplication({
       }
     };
   },
+  onAuthError: error => {
+    const { errorCode } = error;
+
+    if (errorCode === "user_cancelled")
+      return { type: "warning", message: "Login popup was closed." };
+    else if (errorCode === "login_progress_error")
+      return { type: "warning", message: "Login popup is already open." };
+    else if (error.message === "Network Error")
+      return {
+        type: "error",
+        message: (
+          <>
+            Failed to communicate with the server. If the issue persists, please{" "}
+            <a href="mailto:contact.pvce@unsw.edu.au">contact support</a>.
+          </>
+        )
+      };
+
+    const payload = {
+      name: error.name,
+      code: errorCode,
+      message: error.message,
+      stack: error.stack.toString().split("\n")
+    };
+    const headers = {
+      "Content-Type": "application/json; charset=utf8",
+      common: { Authorization: null }
+    };
+    axios.post("auth/error/", payload, { headers });
+
+    return {
+      type: "error",
+      message: (
+        <>
+          An issue occurred while logging you in. Please try again, ensuring
+          that you use <strong>{`<Your zID>`}@ad.unsw.edu.au</strong> to log in.
+          If the issue persists, please{" "}
+          <a href="mailto:contact.pvce@unsw.edu.au">contact support</a>.
+        </>
+      )
+    };
+  },
   refreshAccess: async refresh => {
     const response = await axios.post("auth/refresh/", { refresh });
 
@@ -173,5 +197,6 @@ export default authenticatedApplication({
     axios.defaults.headers.common["Authorization"] = `Bearer ${data.access}`;
 
     return data.access;
-  }
+  },
+  tokenCheckFrequency: 2
 })(App);

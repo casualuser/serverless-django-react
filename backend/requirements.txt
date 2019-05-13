@@ -10,3 +10,4 @@ PyJWT==1.7.1
 watchtower==0.5.5
 requests==2.20.1
 cryptography==2.6.1
+JSON-log-formatter==0.2.0
