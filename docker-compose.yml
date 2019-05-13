@@ -2,6 +2,7 @@ version: "3"
 
 services:
   backend:
+    restart: always
     build: ./backend
     environment:
       - DJANGO_DEBUG=true
@@ -15,6 +16,7 @@ services:
     command: sls wsgi serve --host 0.0.0.0
 
   frontend:
+    restart: always
     build: ./frontend
     environment:
       - REACT_APP_BACKEND_URL=http://localhost:5000
