@@ -30,6 +30,7 @@ yarn-error.log*
 
 # Development files
 data/
+local.env
 
 # Dependencies
 node_modules/
@@ -40,3 +41,4 @@ node_modules/
 # Terraform
 pipeline/.terraform/
 pipeline/variables.tf
+pipeline/terraform.tf

@@ -1,0 +1,54 @@
+variable "name" {
+  type = "string"
+  default = ""
+}
+
+variable "region" {
+  type = "string"
+  default = ""
+}
+
+variable "project_bucket" {
+  type = "string"
+  default = ""
+}
+
+variable "git_repository_owner" {
+  type = "string"
+  default = ""
+}
+
+variable "git_repository_name" {
+  type = "string"
+  default = ""
+}
+
+variable "git_repository_branch" {
+  type = "string"
+  default = ""
+}
+
+variable "account_id" {
+  type = "string"
+  default = ""
+}
+
+variable "github_token" {
+  type = "string"
+  default = ""
+}
+
+variable "stage_domain" {
+  type = "string"
+  default = ""
+}
+
+variable "stage_api_domain" {
+  type = "string"
+  default = ""
+}
+
+variable "stage_domain_cert_id" {
+  type = "string"
+  default = ""
+}
