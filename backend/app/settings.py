@@ -8,7 +8,8 @@ SECRET_KEY = os.environ["SECRET_KEY"]
 
 DEBUG = os.environ.get("DJANGO_DEBUG") == "true"
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(',')
+if os.environ.get("ALLOWED_HOSTS"):
+    ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(',')
 
 INSTALLED_APPS = [
     "django.contrib.auth",
@@ -91,7 +92,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(hours=12),
 }
 
@@ -102,7 +103,7 @@ LOGGING = {
         "standard": {
             "format": "%(levelname)s %(asctime)s (%(name)s) %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
-    },
+        },
         "json": {"()": "json_log_formatter.JSONFormatter"},
     },
     "handlers": {
