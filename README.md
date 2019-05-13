@@ -4,8 +4,10 @@
 - Pulls parameters from AWS Parameter Store instead of using env files
 - Uses Terraform to create deployment pipeline
 
-
 # First time migration
+
 ## Local
-  1. `docker-compose exec backend sh`
-  2. `sls wsgi manage local -c "migrate"`
+
+1. `docker-compose exec backend sh`
+2. `sls wsgi manage local -c "migrate"`
+3. Configure `local.env`, `pipeline/terraform.tf` and `pipeline/variables.tf` (refer to the included .dist files)
