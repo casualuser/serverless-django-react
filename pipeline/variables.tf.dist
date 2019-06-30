@@ -48,7 +48,12 @@ variable "stage_api_domain" {
   default = ""
 }
 
-variable "stage_domain_cert_id" {
+variable "prod_domain" {
+  type = "string"
+  default = ""
+}
+
+variable "prod_api_domain" {
   type = "string"
   default = ""
 }

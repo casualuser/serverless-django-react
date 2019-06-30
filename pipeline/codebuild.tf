@@ -30,19 +30,24 @@ resource "aws_codebuild_project" "stage_codebuild" {
       "value" = "https://${var.stage_api_domain}"
     }
 
-    # environment_variable {
-    #   "name"  = "DOMAIN_CERT_ARN"
-    #   "value" = "${var.stage_domain_cert_arn}"
-    # }
+    environment_variable {
+      "name"  = "BACKEND_DOMAIN"
+      "value" = "${var.stage_api_domain}"
+    }
+
+    environment_variable {
+      "name"  = "BACKEND_DOMAIN_CERT_ARN"
+      "value" = "${aws_acm_certificate_validation.stage_domain_cert_validation.certificate_arn}"
+    }
+
+    environment_variable {
+      "name"  = "HOSTED_ZONE_ID"
+      "value" = "${aws_route53_zone.stage_hosted_zone.id}"
+    }
 
     environment_variable {
       "name"  = "PROJECT_NAME"
       "value" = "${var.name}"
-    }
-
-    environment_variable {
-      "name"  = "DOMAIN"
-      "value" = "${var.stage_domain}"
     }
 
     environment_variable {
@@ -91,6 +96,31 @@ resource "aws_codebuild_project" "prod_codebuild" {
       "name"  = "REACT_APP_AZURE_AUTHORITY"
       "value" = "/prod/${var.name}/AZURE_AUTHORITY"
       "type"  = "PARAMETER_STORE"
+    }
+
+    environment_variable {
+      "name"  = "REACT_APP_FRONTEND_URL"
+      "value" = "https://${var.prod_domain}"
+    }
+
+    environment_variable {
+      "name"  = "REACT_APP_BACKEND_URL"
+      "value" = "https://${var.prod_api_domain}"
+    }
+
+    environment_variable {
+      "name"  = "BACKEND_DOMAIN"
+      "value" = "${var.prod_api_domain}"
+    }
+
+    environment_variable {
+      "name"  = "BACKEND_DOMAIN_CERT_ARN"
+      "value" = "${aws_acm_certificate_validation.prod_domain_cert_validation.certificate_arn}"
+    }
+
+    environment_variable {
+      "name"  = "HOSTED_ZONE_ID"
+      "value" = "${aws_route53_zone.prod_hosted_zone.id}"
     }
 
     environment_variable {

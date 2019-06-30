@@ -22,7 +22,7 @@ resource "aws_cloudfront_distribution" "stage_distribution" {
 
   aliases = ["${var.stage_domain}"]
   viewer_certificate {
-    iam_certificate_id = "${var.stage_domain_cert_id}"
+    acm_certificate_arn = "${aws_acm_certificate_validation.stage_domain_cert_validation.certificate_arn}"
     ssl_support_method = "sni-only"
   }
 
@@ -86,8 +86,10 @@ resource "aws_cloudfront_distribution" "prod_distribution" {
   is_ipv6_enabled = true
   default_root_object = "index.html"
 
+  aliases = ["${var.prod_domain}"]
   viewer_certificate {
-    cloudfront_default_certificate = true
+    acm_certificate_arn = "${aws_acm_certificate_validation.prod_domain_cert_validation.certificate_arn}"
+    ssl_support_method = "sni-only"
   }
 
   custom_error_response {
