@@ -1,9 +1,4 @@
-variable "name" {
-  type = "string"
-  default = ""
-}
-
-variable "region" {
+variable "project_name" {
   type = "string"
   default = ""
 }
@@ -28,32 +23,12 @@ variable "git_repository_branch" {
   default = ""
 }
 
-variable "account_id" {
-  type = "string"
-  default = ""
-}
-
-variable "github_token" {
-  type = "string"
-  default = ""
-}
-
 variable "stage_domain" {
   type = "string"
   default = ""
 }
 
-variable "stage_api_domain" {
-  type = "string"
-  default = ""
-}
-
 variable "prod_domain" {
-  type = "string"
-  default = ""
-}
-
-variable "prod_api_domain" {
   type = "string"
   default = ""
 }

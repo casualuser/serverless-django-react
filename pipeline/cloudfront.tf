@@ -1,6 +1,6 @@
 # Origin access identity for CloudFront distros
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
-  comment = "${var.name}-access-identity"
+  comment = "${var.project_name}-access-identity"
 }
 
 
@@ -8,7 +8,7 @@ resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
 resource "aws_cloudfront_distribution" "stage_distribution" {
   origin {
     domain_name = "${aws_s3_bucket.project_bucket.bucket_domain_name}"
-    origin_path = "/stage"
+    origin_path = "/frontend/stage"
     origin_id = "${aws_s3_bucket.project_bucket.id}"
 
     s3_origin_config {
@@ -74,7 +74,7 @@ resource "aws_cloudfront_distribution" "stage_distribution" {
 resource "aws_cloudfront_distribution" "prod_distribution" {
   origin {
     domain_name = "${aws_s3_bucket.project_bucket.bucket_domain_name}"
-    origin_path = "/prod"
+    origin_path = "/frontend/prod"
     origin_id = "${aws_s3_bucket.project_bucket.id}"
 
     s3_origin_config {

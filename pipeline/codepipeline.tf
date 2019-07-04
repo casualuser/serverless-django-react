@@ -1,5 +1,5 @@
 resource "aws_codepipeline" "project_codepipeline" {
-  name = "${var.name}-codepipeline"
+  name = "${var.project_name}-codepipeline"
   role_arn = "${aws_iam_role.codebuild_role.arn}"
 
   artifact_store {
@@ -22,7 +22,7 @@ resource "aws_codepipeline" "project_codepipeline" {
         Owner = "${var.git_repository_owner}"
         Repo = "${var.git_repository_name}"
         Branch = "${var.git_repository_branch}"
-        OAuthToken = "${var.github_token}"
+        OAuthToken = "${data.aws_ssm_parameter.github_token.value}"
       }
     }
   }
@@ -31,7 +31,7 @@ resource "aws_codepipeline" "project_codepipeline" {
     name = "Stage"
 
     action {
-      name = "BuildDeploy"
+      name = "Frontend"
       category = "Build"
       owner = "AWS"
       provider = "CodeBuild"
@@ -39,7 +39,20 @@ resource "aws_codepipeline" "project_codepipeline" {
       input_artifacts = ["source"]
 
       configuration {
-        ProjectName = "${var.name}-stage-codebuild"
+        ProjectName = "${var.project_name}-frontend-stage"
+      }
+    }
+
+    action {
+      name = "Backend"
+      category = "Build"
+      owner = "AWS"
+      provider = "CodeBuild"
+      version = "1"
+      input_artifacts = ["source"]
+
+      configuration {
+        ProjectName = "${var.project_name}-backend-stage"
       }
     }
   }
@@ -57,7 +70,7 @@ resource "aws_codepipeline" "project_codepipeline" {
     }
 
     action {
-      name = "BuildDeploy"
+      name = "Frontend"
       category = "Build"
       owner = "AWS"
       provider = "CodeBuild"
@@ -66,7 +79,21 @@ resource "aws_codepipeline" "project_codepipeline" {
       input_artifacts = ["source"]
 
       configuration {
-        ProjectName = "${var.name}-prod-codebuild"
+        ProjectName = "${var.project_name}-frontend-prod"
+      }
+    }
+
+    action {
+      name = "Backend"
+      category = "Build"
+      owner = "AWS"
+      provider = "CodeBuild"
+      run_order = 2
+      version = "1"
+      input_artifacts = ["source"]
+
+      configuration {
+        ProjectName = "${var.project_name}-backend-prod"
       }
     }
   }

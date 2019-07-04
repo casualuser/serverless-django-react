@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "project_bucket_policy" {
 
 # IAM role for CodeBuild
 resource "aws_iam_role" "codebuild_role" {
-  name = "${var.name}-codebuild-role"
+  name = "${var.project_name}-codebuild-role"
 
   assume_role_policy = <<EOF
 {
@@ -46,7 +46,7 @@ EOF
 
 # Policy to attach to CodeBuild IAM role
 resource "aws_iam_policy" "codebuild_policy" {
-  name = "${var.name}-codebuild-policy"
+  name = "${var.project_name}-codebuild-policy"
 
   policy = <<EOF
 {
@@ -56,8 +56,10 @@ resource "aws_iam_policy" "codebuild_policy" {
       "Effect": "Allow",
       "Action": "codebuild:*",
       "Resource": [
-        "${aws_codebuild_project.stage_codebuild.id}",
-        "${aws_codebuild_project.prod_codebuild.id}"
+        "${aws_codebuild_project.stage_frontend_codebuild.id}",
+        "${aws_codebuild_project.stage_backend_codebuild.id}",
+        "${aws_codebuild_project.prod_frontend_codebuild.id}",
+        "${aws_codebuild_project.prod_backend_codebuild.id}"
       ]
     },
     {
@@ -67,8 +69,8 @@ resource "aws_iam_policy" "codebuild_policy" {
         "ssm:GetParameters"
       ],
       "Resource": [
-        "arn:aws:ssm:${var.region}:${var.account_id}:parameter/stage/${var.name}/*",
-        "arn:aws:ssm:${var.region}:${var.account_id}:parameter/prod/${var.name}/*"
+        "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/stage/${var.project_name}/*",
+        "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter/prod/${var.project_name}/*"
       ]
     },
     {
@@ -99,7 +101,7 @@ EOF
 }
 
 resource "aws_iam_policy_attachment" "codebuild_policy_attachment" {
-  name = "${var.name}-codebuild-policy-attachment"
+  name = "${var.project_name}-codebuild-policy-attachment"
   policy_arn = "${aws_iam_policy.codebuild_policy.arn}"
   roles = ["${aws_iam_role.codebuild_role.id}"]
 }

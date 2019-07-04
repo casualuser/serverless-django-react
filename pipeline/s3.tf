@@ -12,7 +12,7 @@ resource "aws_s3_bucket" "project_bucket" {
   }
 
   tags = {
-    Name = "${var.name}"
+    Name = "${var.project_name}"
   }
 }
 
