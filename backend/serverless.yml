@@ -8,8 +8,10 @@ plugins:
 custom:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'ap-southeast-2'}
+  cloudwatch: /serverless/django/${self:service}/${self:custom.stage}
   wsgi:
     app: app.wsgi.application
+    pythonBin: python3
   customDomain:
     domainName: ${env:BACKEND_DOMAIN, ''}
     certificateArn: ${env:DOMAIN_CERT_ARN, ''}
@@ -29,16 +31,17 @@ functions:
     events:
       - http: "ANY {proxy+}"
     environment:
+      STAGE: ${self:custom.stage}
       AZURE_APP_ID: ${ssm:/${self:custom.stage}/${self:service}/AZURE_APP_ID}
       AZURE_ADMIN_GROUP_ID: ${ssm:/${self:custom.stage}/${self:service}/AZURE_ADMIN_GROUP_ID}
       SECRET_KEY: ${ssm:/${self:custom.stage}/${self:service}/SECRET_KEY~true}
       ALLOWED_HOSTS: ${ssm:/${self:custom.stage}/${self:service}/ALLOWED_HOSTS, ''}
       CORS_WHITELIST: ${ssm:/${self:custom.stage}/${self:service}/CORS_WHITELIST, ''}
-      DB_HOST: ${ssm:/${self:custom.stage}/${self:service}/DB_HOST}
-      DB_PORT: ${ssm:/${self:custom.stage}/${self:service}/DB_PORT}
-      DB_NAME: ${ssm:/${self:custom.stage}/${self:service}/DB_NAME}
-      DB_USER: ${ssm:/${self:custom.stage}/${self:service}/DB_USER}
-      DB_PASSWORD: ${ssm:/${self:custom.stage}/${self:service}/DB_PASSWORD~true}
+      DB_HOST: ${ssm:/${self:custom.stage}/${self:service}/DB_HOST, env:DB_HOST}
+      DB_PORT: ${ssm:/${self:custom.stage}/${self:service}/DB_PORT, env:DB_PORT}
+      DB_NAME: ${ssm:/${self:custom.stage}/${self:service}/DB_NAME, env:DB_NAME}
+      DB_USER: ${ssm:/${self:custom.stage}/${self:service}/DB_USER, env:DB_USER}
+      DB_PASSWORD: ${ssm:/${self:custom.stage}/${self:service}/DB_PASSWORD~true, env:DB_PASSWORD}
       TEAMS_WEBHOOK: ${ssm:/${self:custom.stage}/${self:service}/TEAMS_WEBHOOK, ''}
-      CLOUDWATCH_LOG_GROUP: ${ssm:/${self:custom.stage}/${self:service}/CLOUDWATCH_LOG_GROUP, ''}
-      CLOUDWATCH_LOG_STREAM: ${ssm:/${self:custom.stage}/${self:service}/CLOUDWATCH_LOG_STREAM, ''}
+      CLOUDWATCH_LOG_GROUP: ${self:custom.cloudwatch}
+      FRONTEND_URL: ${env:FRONTEND_URL}
