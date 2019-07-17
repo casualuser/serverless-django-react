@@ -105,22 +105,22 @@ class App extends Component {
           <Layout.Content style={{ padding: 25 }}>
             <Layout style={{ padding: 25, background: "#fff" }}>
               <Suspense fallback={<div>Loading...</div>}>
-              <Switch>
-                <Route
-                  exact
-                  path="/"
-                  render={props =>
-                    isAdmin ? (
-                      <AdminDashboard {...props} />
-                    ) : (
-                      <UserDashboard {...props} />
-                    )
-                  }
-                />
+                <Switch>
+                  <Route
+                    exact
+                    path="/"
+                    render={props =>
+                      isAdmin ? (
+                        <AdminDashboard {...props} />
+                      ) : (
+                        <UserDashboard {...props} />
+                      )
+                    }
+                  />
 
-                <Route exact path="/forbidden" component={Forbidden} />
-                <Route exact path="/error" component={ServerError} />
-              </Switch>
+                  <Route exact path="/forbidden" component={Forbidden} />
+                  <Route exact path="/error" component={ServerError} />
+                </Switch>
               </Suspense>
             </Layout>
           </Layout.Content>
@@ -150,7 +150,10 @@ export default authenticatedApplication({
           Copyright &amp; Disclaimer
         </a>,
         <span style={{ color: "rgba(117, 117, 117, 0.5)" }}>
-          {`Build date: ${preval`module.exports = new Date().toLocaleString("en-AU", {year: "numeric", month: "2-digit", day: "2-digit"});`}`}
+          {`Build date: ${preval`
+            const moment = require("moment");
+            module.exports = moment().format("DD/MM/YYYY");
+          `}`}
         </span>
       ]}
     />
