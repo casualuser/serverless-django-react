@@ -1,3 +1,4 @@
+import React, { Component, Suspense, lazy } from "react";
 import { Switch, Route, withRouter } from "react-router-dom";
 import { Button, Layout } from "antd";
 import { authenticatedApplication } from "react-msal-jwt";
@@ -5,14 +6,15 @@ import { LandingPage } from "login-landing-page";
 import axios from "axios";
 import preval from "preval.macro";
 
-import AdminDashboard from "./components/AdminDashboard";
-import UserDashboard from "./components/UserDashboard";
 import Forbidden from "./error/Forbidden";
 import ServerError from "./error/ServerError";
 
 import AppContext from "./AppContext";
 
 import "./App.css";
+
+const AdminDashboard = lazy(() => import("./components/AdminDashboard"));
+const UserDashboard = lazy(() => import("./components/UserDashboard"));
 
 axios.defaults.baseURL = process.env.REACT_APP_BACKEND_URL;
 
@@ -102,6 +104,7 @@ class App extends Component {
 
           <Layout.Content style={{ padding: 25 }}>
             <Layout style={{ padding: 25, background: "#fff" }}>
+              <Suspense fallback={<div>Loading...</div>}>
               <Switch>
                 <Route
                   exact
@@ -118,6 +121,7 @@ class App extends Component {
                 <Route exact path="/forbidden" component={Forbidden} />
                 <Route exact path="/error" component={ServerError} />
               </Switch>
+              </Suspense>
             </Layout>
           </Layout.Content>
         </Layout>
