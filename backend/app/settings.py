@@ -92,6 +92,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
+    "USER_ID_FIELD": "zid",
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(hours=12),
 }
