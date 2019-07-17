@@ -1,5 +1,4 @@
-import React, { Component } from "react";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, withRouter } from "react-router-dom";
 import { Button, Layout } from "antd";
 import { authenticatedApplication } from "react-msal-jwt";
 import { LandingPage } from "login-landing-page";
@@ -28,6 +27,40 @@ class App extends Component {
     this.state = {
       isAdmin: props.isAdmin || sessionStorage.getItem("isAdmin") === "true"
     };
+
+    // If mounting the component on /error or /forbidden routes,
+    // then redirect to the root route
+    if (["/error", "/forbidden"].includes(props.location.pathname))
+      props.history.replace("/");
+    
+    // Intercept requests to detect whether the access token is still valid
+    axios.interceptors.request.use(
+      async config => {
+        const {
+          access: hasAccessToken,
+          refresh: hasRefreshToken
+        } = props.isTokenExpired();
+
+        // If the access token is invalid, and we are not interacting with auth endpoints,
+        // then renew the access token
+        if (
+          !hasAccessToken &&
+          !["auth/login/", "auth/refresh/", "auth/error/"].includes(config.url)
+        ) {
+          if (hasRefreshToken) {
+            const accessToken = await props.refreshAccessToken();
+            config.headers.common["Authorization"] = `Bearer ${accessToken}`;
+          } else {
+            props.throwTokenError();
+          }
+        }
+
+        return config;
+      },
+      error => {
+        return Promise.reject(error);
+      }
+    );
   }
 
   render() {
@@ -199,4 +232,4 @@ export default authenticatedApplication({
     return data.access;
   },
   tokenCheckFrequency: 2
-})(App);
+})(withRouter(props => <App {...props} />));
