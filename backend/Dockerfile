@@ -1,10 +1,12 @@
-FROM lambci/lambda:build-python3.6
+FROM amazonlinux:2.0.20190228
 
 RUN curl --silent --location https://rpm.nodesource.com/setup_11.x | bash -
-RUN yum -y install nodejs
+RUN yum install -y nodejs
 RUN npm install -g serverless
 COPY package.json package-lock.json ./
 RUN npm install
+
+RUN yum install -y gcc python3-devel.x86_64 mysql-devel
 
 COPY requirements.txt ./
 RUN pip3 install -r requirements.txt

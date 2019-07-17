@@ -1,11 +1,29 @@
 version: "3"
 
 services:
+  db:
+    image: mysql:5.7.22
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=dev
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data/sql:/var/lib/mysql
+
   backend:
     restart: always
+    depends_on:
+      - db
     build: ./backend
     environment:
+      - FRONTEND_URL=http://localhost:3000
       - DJANGO_DEBUG=true
+      - DB_HOST=db
+      - DB_NAME=dev
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASS=root
     env_file:
       - local.env
     ports:
@@ -17,6 +35,8 @@ services:
 
   frontend:
     restart: always
+    depends_on:
+      - backend
     build: ./frontend
     environment:
       - REACT_APP_BACKEND_URL=http://localhost:5000
@@ -28,6 +48,4 @@ services:
     volumes:
       - ./frontend:/frontend
       - ~/.aws:/root/.aws
-    depends_on:
-      - backend
     entrypoint: ["sh", "/frontend/entrypoint.sh"]
