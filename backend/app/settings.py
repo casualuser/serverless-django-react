@@ -9,7 +9,7 @@ SECRET_KEY = os.environ["SECRET_KEY"]
 DEBUG = os.environ.get("DJANGO_DEBUG") == "true"
 
 if os.environ.get("ALLOWED_HOSTS"):
-    ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(',')
+    ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
 
 INSTALLED_APPS = [
     "django.contrib.auth",
@@ -112,11 +112,18 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "stream": sys.stdout,
             "formatter": "standard",
-        }
+        },
+        "json_console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+            "formatter": "json",
+        },
     },
     "loggers": {
         "django": {"level": "INFO", "handlers": ["console"], "propagate": False},
         "msal": {"level": "INFO", "handlers": [], "propagate": False},
+        "audit": {"level": "INFO", "handlers": ["json_console"], "propagate": False},
     },
 }
 
@@ -127,31 +134,40 @@ if os.environ.get("TEAMS_WEBHOOK"):
     }
     LOGGING["loggers"]["django"]["handlers"].append("teams")
 
-if os.environ.get("CLOUDWATCH_LOG_GROUP") and os.environ.get("CLOUDWATCH_LOG_STREAM"):
+if os.environ["STAGE"] != "dev":
     session = {"region_name": os.environ.get("AWS_REGION", "ap-southeast-2")}
     if os.environ.get("AWS_PROFILE"):
         session["profile_name"] = os.environ.get("AWS_PROFILE")
 
-    watchtower = {
+    cloudwatch = {
         "level": "INFO",
-        "class": "watchtower.django.CloudWatchLogHandler",
+        "class": "watchtower.CloudWatchLogHandler",
         "boto3_session": Session(**session),
-        "log_group": os.environ.get("CLOUDWATCH_LOG_GROUP"),
+        "log_group": os.environ["CLOUDWATCH_LOG_GROUP"],
+        "use_queues": False,  # Queueing does not work within AWS Lambda execution environment
     }
 
     LOGGING["handlers"]["watchtower"] = {
-        **watchtower,
+        **cloudwatch,
         "formatter": "standard",
-        "stream_name": os.environ.get("CLOUDWATCH_LOG_STREAM"),
+        "stream_name": "watchtower",
     }
     LOGGING["loggers"]["django"]["handlers"].append("watchtower")
 
     LOGGING["handlers"]["msal_handler"] = {
-        **watchtower,
+        **cloudwatch,
         "formatter": "json",
         "stream_name": "MSAL",
     }
     LOGGING["loggers"]["msal"]["handlers"].append("msal_handler")
+
+    LOGGING["handlers"]["audit"] = {
+        **cloudwatch,
+        "formatter": "json",
+        "stream_name": "audit",
+    }
+    LOGGING["loggers"]["audit"]["handlers"].append("audit")
+
 
 if os.environ["CORS_WHITELIST"]:
     CORS_ORIGIN_WHITELIST = os.environ["CORS_WHITELIST"].split(",")
