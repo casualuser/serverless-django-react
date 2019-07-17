@@ -191,7 +191,7 @@ export default authenticatedApplication({
   onAuthError: error => {
     const { errorCode } = error;
 
-    if (errorCode === "user_cancelled")
+    if (errorCode === "user_cancelled" || error.message === "e is undefined")
       return { type: "warning", message: "Login popup was closed." };
     else if (errorCode === "login_progress_error")
       return { type: "warning", message: "Login popup is already open." };
