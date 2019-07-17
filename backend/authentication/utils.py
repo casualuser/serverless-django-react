@@ -4,14 +4,18 @@ import os
 import requests
 import jwt
 import re
+from datetime import datetime as dt, timezone
+import random
+
+import logging
 
 from cryptography.x509 import load_pem_x509_certificate
 from cryptography.hazmat.backends import default_backend
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.contrib.auth.hashers import make_password
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from .serializers import UserSerializer
 from .models import User
+
+logger = logging.getLogger("audit")
 
 
 def decode_id_token(token):
@@ -71,42 +75,47 @@ def identify_user(access_token):
     is_admin = False
     if os.environ["AZURE_ADMIN_GROUP_ID"] in groups:
         is_admin = True
-    
+
+    # Randomly generate a zID if coming from personal ActiveDirectory
+    # because employeeId will likely be blank
+    if os.environ["STAGE"] != "prod" and not user_data["employeeId"]:
+        user_data["employeeId"] = random.randint(1000000, 9999999)
+
+    zid = f'z{user_data["employeeId"]}'
     username = user_data["userPrincipalName"]
-    user_data = {
-        "zid": "z" + str(user_data["employeeId"]),
+    updated_data = {
         "first_name": user_data["givenName"],
         "last_name": user_data["surname"],
         "display_name": user_data["displayName"],
-        "email": user_data["mail"],
-        "faculty": user_data["department"],
-        "school": user_data["companyName"],
-        "title": user_data["jobTitle"],
-        "department": user_data["department"],
+        "job_title": user_data["jobTitle"],
         "is_staff": is_admin,
+        "last_login": dt.now(timezone.utc),
     }
 
-    user = None
-    if User.objects.filter(username=username).exists():
+    try:
         user = User.objects.get(username=username)
-        serializer = UserSerializer(user, data=user_data, partial=True)
-        if serializer.is_valid():
-            user = serializer.save()
-    else:
-        # The password is simply used to generate a JWT
-        # Users cannot authenticate using this password
-        # The only means for authentication are when the user comes from
-        # the Azure SSO with a valid token
-        password = make_password(username)
-        serializer = UserSerializer(
-            data={"username": username, "password": password, **user_data}
+        for key, value in updated_data.items():
+            setattr(user, key, value)
+    except User.DoesNotExist:
+        # zID, username, email and public_name are only set on user creation,
+        # and are not updated on users' subsequent logins
+        user = User(
+            zid=zid,
+            username=username,
+            # "mail" may not be a key in the payload when coming from
+            # personal ActiveDirectory
+            email=user_data["mail"] if user_data.get("mail") else username,
+            **updated_data,
         )
-        if serializer.is_valid():
-            user = serializer.save()
 
-    if user:
-        auth = {"username": username, "password": username}
-        return {
-            "is_admin": user.is_staff,
-            **TokenObtainPairSerializer(auth).validate(auth),
-        }
+    user.save()
+
+    refresh = RefreshToken.for_user(user)
+
+    logger.info(f"authentication.login", extra={"user": user.zid})
+
+    return {
+        "is_admin": user.is_staff,
+        "refresh": str(refresh),
+        "access": str(refresh.access_token),
+    }
