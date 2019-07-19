@@ -8,6 +8,8 @@ SECRET_KEY = os.environ["SECRET_KEY"]
 
 DEBUG = os.environ.get("DJANGO_DEBUG") == "true"
 
+CORS_ORIGIN_WHITELIST = [os.environ["FRONTEND_URL"]]
+
 if os.environ.get("ALLOWED_HOSTS"):
     ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
 
@@ -168,10 +170,3 @@ if os.environ["STAGE"] != "dev":
         "stream_name": "audit",
     }
     LOGGING["loggers"]["audit"]["handlers"].append("audit")
-
-
-if os.environ["CORS_WHITELIST"]:
-    CORS_ORIGIN_WHITELIST = os.environ["CORS_WHITELIST"].split(",")
-else:
-    logging.warn("CORS_WHITELIST not provided. Defaulting to CORS_ORIGIN_ALLOW_ALL.")
-    CORS_ORIGIN_ALLOW_ALL = True
