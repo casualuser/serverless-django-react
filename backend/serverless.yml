@@ -24,6 +24,21 @@ provider:
   region: ${self:custom.region}
   deploymentBucket:
     name: ${env:PROJECT_BUCKET, ''}
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "logs:CreateLogGroup"
+        - "logs:CreateLogStream"
+        - "logs:PutLogEvents"
+      Resource:
+        Fn::Join:
+          - ":"
+          - - "arn:aws:logs"
+            - ${self:custom.region}
+            - Ref: "AWS::AccountId"
+            - "log-group"
+            - ${self:custom.cloudwatch}
+            - "*"
 
 functions:
   app:
