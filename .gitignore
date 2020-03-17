@@ -12,3 +12,7 @@
 # system files
 .DS_Store
 Thumbs.db
+
+# development files
+local.env
+/data
