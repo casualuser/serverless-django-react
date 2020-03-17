@@ -2,7 +2,7 @@ FROM amazonlinux:2.0.20190228
 
 RUN curl --silent --location https://rpm.nodesource.com/setup_11.x | bash -
 RUN yum install -y nodejs
-RUN npm install -g serverless
+RUN npm install -g serverless@1.66.0
 COPY package.json package-lock.json ./
 RUN npm install
 
