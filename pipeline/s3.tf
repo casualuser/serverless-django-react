@@ -1,7 +1,6 @@
-
 resource "aws_s3_bucket" "project_bucket" {
-  bucket = "${var.project_bucket}"
-  acl = "private"
+  bucket = var.project_bucket
+  acl    = "private"
 
   server_side_encryption_configuration {
     rule {
@@ -12,13 +11,14 @@ resource "aws_s3_bucket" "project_bucket" {
   }
 
   tags = {
-    Name = "${var.project_name}"
+    Project     = var.project_name
+    Environment = "prod"
   }
 }
 
 # Private ACLs and bucket policies for project bucket
-resource "aws_s3_bucket_public_access_block" "project_bucket_public_access_block" {
-  bucket = "${aws_s3_bucket.project_bucket.id}"
+resource "aws_s3_bucket_public_access_block" "public_access_block" {
+  bucket = aws_s3_bucket.project_bucket.id
 
   # Block new public ACLs and uploading public objects
   block_public_acls = true
@@ -33,9 +33,8 @@ resource "aws_s3_bucket_public_access_block" "project_bucket_public_access_block
   restrict_public_buckets = true
 }
 
-
 # Assign the IAM policy to the project bucket
-resource "aws_s3_bucket_policy" "project_bucket_policy_assignment" {
-  bucket = "${aws_s3_bucket.project_bucket.id}"
-  policy = "${data.aws_iam_policy_document.project_bucket_policy.json}"
+resource "aws_s3_bucket_policy" "policy_assignment" {
+  bucket = aws_s3_bucket.project_bucket.id
+  policy = data.aws_iam_policy_document.project_bucket_policy.json
 }

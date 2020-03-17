@@ -1,22 +1,12 @@
 # IAM policy to give the origin access identity access to the project bucket
 data "aws_iam_policy_document" "project_bucket_policy" {
   statement {
-    actions = ["s3:GetObject"]
+    actions   = ["s3:GetObject"]
     resources = ["${aws_s3_bucket.project_bucket.arn}/*"]
 
     principals {
-      type = "AWS"
-      identifiers = ["${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"]
-    }
-  }
-
-  statement {
-    actions = ["s3:ListBucket"]
-    resources = ["${aws_s3_bucket.project_bucket.arn}"]
-
-    principals {
-      type = "AWS"
-      identifiers = ["${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"]
+      type        = "AWS"
+      identifiers = [aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn]
     }
   }
 }
@@ -101,7 +91,7 @@ EOF
 }
 
 resource "aws_iam_policy_attachment" "codebuild_policy_attachment" {
-  name = "${var.project_name}-codebuild-policy-attachment"
-  policy_arn = "${aws_iam_policy.codebuild_policy.arn}"
-  roles = ["${aws_iam_role.codebuild_role.id}"]
+  name       = "${var.project_name}-codebuild-policy-attachment"
+  policy_arn = aws_iam_policy.codebuild_policy.arn
+  roles      = [aws_iam_role.codebuild_role.id]
 }
