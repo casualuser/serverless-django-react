@@ -1,12 +1,11 @@
-FROM alpine:3.9.3
+FROM amazonlinux:2.0.20190228
 
-RUN apk add --no-cache python3
-RUN pip3 install awscli
-
-RUN apk add --no-cache nodejs nodejs-npm
-
+RUN curl --silent --location https://rpm.nodesource.com/setup_11.x | bash -
+RUN yum install -y nodejs
 COPY package.json package-lock.json ./
 RUN npm install
+
+RUN yum install -y awscli
 
 ADD ./ /frontend
 WORKDIR /frontend
