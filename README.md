@@ -39,8 +39,6 @@
 | -------------------- | -------- | ------------ |
 | AZURE_APP_ID         | Yes      | String       |
 | AZURE_AUTHORITY      | Yes      | String       |
-| ASSET_URL            | Yes      | String       |
-| ASSET_BUCKET         | Yes      | String       |
 | AZURE_ADMIN_GROUP_ID | Yes      | String       |
 | DB_HOST              | Yes      | String       |
 | DB_NAME              | Yes      | String       |
@@ -56,13 +54,11 @@
 | Parameter             | Required | Description                                                                              |
 | --------------------- | -------- | ---------------------------------------------------------------------------------------- |
 | project_name          | Yes      | Lower-case project name                                                                  |
+| domain                | Yes      | Used as an environment variable in stage CodeBuild                                       |
 | project_bucket        | Yes      | Location to store project files (serverless deployment, compiled frontend, codepipeline) |
-| asset_bucket          | Yes      | Location to store project assets (profile pictures)                                      |
 | git_repository_owner  | Yes      | Username of the GitHub account which owns the repository                                 |
 | git_repository_name   | Yes      | Name of the GitHub code repository                                                       |
 | git_repository_branch | Yes      | Name of the branch to pull code from                                                     |
-| stage_domain          | Yes      | Used as an environment variable in stage CodeBuild                                       |
-| prod_domain           | Yes      | Used as an environment variable in prod CodeBuild                                        |
 
 # Environment parameters
 
