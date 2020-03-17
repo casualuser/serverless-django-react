@@ -1,5 +1,3 @@
-# See https://help.github.com/ignore-files/ for more about ignoring files.
-
 # IDEs and editors
 /.idea
 .project
@@ -11,34 +9,6 @@
 .eslintrc
 .vscode/
 
-# System Files
+# system files
 .DS_Store
 Thumbs.db
-
-# Python files
-__pycache__/
-*.py[cod]
-migrations/
-
-# Logs and temporary files
-logs/*
-tmp/*
-*.state.db
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Development files
-data/
-local.env
-
-# Dependencies
-node_modules/
-
-# Serverless
-.serverless/
-
-# Terraform
-pipeline/.terraform/
-pipeline/variables.tf
-pipeline/terraform.tf
