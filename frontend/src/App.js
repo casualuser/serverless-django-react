@@ -2,9 +2,7 @@ import React, { Component, Suspense, lazy } from "react";
 import { Switch, Route, withRouter } from "react-router-dom";
 import { Button, Layout } from "antd";
 import { authenticatedApplication } from "react-msal-jwt";
-import { LandingPage } from "login-landing-page";
 import axios from "axios";
-import preval from "preval.macro";
 
 import Forbidden from "./error/Forbidden";
 import ServerError from "./error/ServerError";
@@ -13,6 +11,7 @@ import AppContext from "./AppContext";
 
 import "./App.css";
 
+import LandingPage from "./components/LandingPage";
 const AdminDashboard = lazy(() => import("./components/AdminDashboard"));
 const UserDashboard = lazy(() => import("./components/UserDashboard"));
 
@@ -34,7 +33,7 @@ class App extends Component {
     // then redirect to the root route
     if (["/error", "/forbidden"].includes(props.location.pathname))
       props.history.replace("/");
-    
+
     // Intercept requests to detect whether the access token is still valid
     axios.interceptors.request.use(
       async config => {
@@ -81,19 +80,8 @@ class App extends Component {
                 height: "100%"
               }}
             >
-              <img
-                src="https://cdn.teaching.unsw.edu.au/unswbranding/unsw_neg.png"
-                alt="UNSW logo"
-                style={{
-                  maxHeight: "100%",
-                  width: "auto",
-                  padding: "10px 0",
-                  marginRight: 25
-                }}
-              />
-
               <h1 style={{ color: "#fff", margin: 0, fontSize: 32 }}>
-                Boilerplate
+                Example Application
               </h1>
             </div>
 
@@ -131,33 +119,7 @@ class App extends Component {
 }
 
 export default authenticatedApplication({
-  landingPage: (
-    <LandingPage
-      title="Boilerplate"
-      background="https://cdn.teaching.unsw.edu.au/161006_UNSW_016.jpg"
-      logo={
-        <a href="https://www.unsw.edu.au/">
-          <img
-            src="https://cdn.teaching.unsw.edu.au/unswbranding/unsw_neg.png"
-            alt="UNSW Logo"
-          />
-        </a>
-      }
-      footerItems={[
-        <a href="mailto:contact.pvce@unsw.edu.au">Contact us</a>,
-        <a href="https://www.unsw.edu.au/privacy">Privacy Policy</a>,
-        <a href="https://www.unsw.edu.au/copyright-disclaimer">
-          Copyright &amp; Disclaimer
-        </a>,
-        <span style={{ color: "rgba(117, 117, 117, 0.5)" }}>
-          {`Build date: ${preval`
-            const moment = require("moment");
-            module.exports = moment().format("DD/MM/YYYY");
-          `}`}
-        </span>
-      ]}
-    />
-  ),
+  landingPage: <LandingPage />,
   msalConfig: {
     auth: {
       clientId: process.env.REACT_APP_AZURE_APP_ID,
@@ -191,19 +153,20 @@ export default authenticatedApplication({
   onAuthError: error => {
     const { errorCode } = error;
 
-    if (errorCode === "user_cancelled" || error.message === "e is undefined")
+    if (errorCode === "user_cancelled" || errorCode === "access_denied")
       return { type: "warning", message: "Login popup was closed." };
     else if (errorCode === "login_progress_error")
       return { type: "warning", message: "Login popup is already open." };
+    else if (errorCode === "popup_window_error")
+      return {
+        type: "warning",
+        message:
+          "Error opening popup window. This can happen if you are using IE or if popups are blocked in the browser."
+      };
     else if (error.message === "Network Error")
       return {
         type: "error",
-        message: (
-          <>
-            Failed to communicate with the server. If the issue persists, please{" "}
-            <a href="mailto:contact.pvce@unsw.edu.au">contact support</a>.
-          </>
-        )
+        message: "Failed to communicate with the server."
       };
 
     const payload = {
@@ -220,14 +183,7 @@ export default authenticatedApplication({
 
     return {
       type: "error",
-      message: (
-        <>
-          An issue occurred while logging you in. Please try again, ensuring
-          that you use <strong>{`<Your zID>`}@ad.unsw.edu.au</strong> to log in.
-          If the issue persists, please{" "}
-          <a href="mailto:contact.pvce@unsw.edu.au">contact support</a>.
-        </>
-      )
+      message: "An issue occurred while logging you in. Please try again."
     };
   },
   refreshAccess: async refresh => {
